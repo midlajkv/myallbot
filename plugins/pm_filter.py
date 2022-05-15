@@ -418,19 +418,27 @@ async def cb_handler(client: Client, query: CallbackQuery):
 
         try:
             if AUTH_CHANNEL and not await is_subscribed(client, query):
-                await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
-                return
-            elif settings['botpm']:
-                await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
-                return
-            else:
-                await client.send_cached_media(
-                    chat_id=query.from_user.id,
-                    file_id=file_id,
-                    caption=f_caption,
-                    protect_content=True if ident == "filep" else False 
-                )
-                await query.answer('Check PM, I have sent files in pm', show_alert=True)
+                    await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
+                    return
+                elif settings["botpm"]:
+                    await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
+                else:
+                    dd=await client.send_cached_media(
+                        chat_id=AUTH_CHANNEL,
+                        file_id=file_id,
+                        caption=f_caption
+                    )
+                    message = query.message.reply_to_message
+                    buttons = [[
+                        InlineKeyboardButton("ＤＯＷＮＬＯＡＤ", url=f"{dd.link}")
+                        ],[
+                        InlineKeyboardButton("𝖢𝗅𝗈𝗌𝖾 🗑️", callback_data='closefilemsg')
+                    ]]
+                    reply_markup = InlineKeyboardMarkup(buttons)
+                    fff = await message.reply_text(text=script.ANYFILECAPTION_TXT.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption), reply_markup=reply_markup)
+                    await asyncio.sleep(35)
+                    await fff.delete()
+
         except UserIsBlocked:
             await query.answer('You Are Blocked to use me', show_alert=True)
         except PeerIdInvalid:
@@ -438,6 +446,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
         except Exception as e:
             await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
     elif query.data.startswith("checksub"):
+
         if AUTH_CHANNEL and not await is_subscribed(client, query):
             await query.answer("I Like Your Smartness, But Don't Be Oversmart 😒", show_alert=True)
             return
@@ -2303,8 +2312,8 @@ async def cb_handler(client: Client, query: CallbackQuery):
                                          callback_data=f'setgs#button#{settings["button"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('𝐁𝐎𝐓 𝐏𝐌', callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}'),
-                    InlineKeyboardButton('✅ 𝐘𝐄𝐒' if settings["botpm"] else '❌ 𝐍𝐎',
+                    InlineKeyboardButton('📁 File Method', callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}'),
+                    InlineKeyboardButton('Pm' if settings["botpm"] else 'Channel',
                                          callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}')
                 ],
                 [
