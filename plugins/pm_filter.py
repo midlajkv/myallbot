@@ -417,39 +417,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
         ]
 
         try:
-            if AUTH_CHANNEL and not await is_subscribed(client, query):
-                    await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
-                    return
-                elif query.data.startswith("botpm"):
-                    await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
-                else:
-                    dd=await client.send_cached_media(
-                        chat_id=AUTH_CHANNEL,
-                        file_id=file_id,
-                        caption=f_caption
-                    )
-                    message = query.message.reply_to_message
-                    buttons = [[
-                        InlineKeyboardButton("ＤＯＷＮＬＯＡＤ", url=f"{dd.link}")
-                        ],[
-                        InlineKeyboardButton("𝖢𝗅𝗈𝗌𝖾 🗑️", callback_data='closefilemsg')
-                    ]]
-                    reply_markup = InlineKeyboardMarkup(buttons)
-                    fff = await message.reply_text(text=script.ANYFILECAPTION_TXT.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption), reply_markup=reply_markup)
-                    await asyncio.sleep(35)
-                    await fff.delete()
-
-        except UserIsBlocked:
-            await query.answer('You Are Blocked to use me', show_alert=True)
-        except PeerIdInvalid:
-            await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
-        except Exception as e:
-            await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
-    elif query.data.startswith("checksub"):
-
-        if AUTH_CHANNEL and not await is_subscribed(client, query):
-            await query.answer("I Like Your Smartness, But Don't Be Oversmart 😒", show_alert=True)
-            return
+            if query.data.startswith("file"):
         ident, file_id = query.data.split("#")
         files_ = await get_file_details(file_id)
         if not files_:
@@ -458,6 +426,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
         title = files.file_name
         size = get_size(files.file_size)
         f_caption = files.caption
+        settings = await get_settings(query.message.chat.id)
         if CUSTOM_FILE_CAPTION:
             try:
                 f_caption = CUSTOM_FILE_CAPTION.format(file_name='' if title is None else title,
@@ -465,25 +434,92 @@ async def cb_handler(client: Client, query: CallbackQuery):
                                                        file_caption='' if f_caption is None else f_caption)
             except Exception as e:
                 logger.exception(e)
-                f_caption = f_caption
+            f_caption = f_caption
         if f_caption is None:
-            f_caption = f"{title}"
-        buttons = [
-        [
-            InlineKeyboardButton('𝑮𝒓𝒐𝒖𝒑', url='https://t.me/MovieHubOfficialGroup'),
-            InlineKeyboardButton('𝑫𝒆𝒗𝒆𝒍𝒐𝒑𝒆𝒓', url='https://t.me/Abhisheksvlog')
-        ],
-        [
-            InlineKeyboardButton('𝑪𝒉𝒂𝒏𝒏𝒆𝒍', url=f'https://t.me/justaupdatechannel')
-        ]
-        ]
-        await query.answer()
-        await client.send_cached_media(
-            chat_id=query.from_user.id,
-            file_id=file_id,
-            caption=f_caption,
-            protect_content=True if ident == 'checksubp' else False
-        )
+            f_caption = f"{files.file_name}"
+
+        try:
+            if AUTH_CHANNEL and not await is_subscribed(client, query):
+                await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
+                return
+            elif settings['botpm']:
+                await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
+                return
+            else:
+                await client.send_cached_media(
+                    chat_id=query.from_user.id,
+                    file_id=file_id,
+                    caption=f_caption,
+                    protect_content=True if ident == "filep" else False 
+                )
+                await query.answer('Check PM, I have sent files in pm', show_alert=True)
+        except UserIsBlocked:
+            await query.answer('You Are Blocked to use me', show_alert=True)
+        except PeerIdInvalid:
+            await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
+        except Exception as e:
+            await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
+
+elif query.data.startswith("Chat"):
+        ident, file_id, rid = query.data.split("#")
+
+        if int(rid) not in [query.from_user.id, 0]:
+            return await query.answer(oKDa, show_alert=True)
+
+        files_ = await get_file_details(file_id)
+        if not files_:
+            return await query.answer('No such file exist.')
+        files = files_[0]
+        title = files.file_name
+        size = get_size(files.file_size)
+        mention = query.from_user.mention
+        f_caption = files.caption
+        settings = await get_settings(query.message.chat.id)
+        if CUSTOM_FILE_CAPTION:
+            try:
+                f_caption = CUSTOM_FILE_CAPTION.format(file_name='' if title is None else title,
+                                                       file_size='' if size is None else size,
+                                                       file_caption='' if f_caption is None else f_caption)
+            except Exception as e:
+                logger.exception(e)
+            f_caption = f_caption
+            size = size
+            mention = mention
+        if f_caption is None:
+            f_caption = f"{files.file_name}"
+            size = f"{files.file_size}"
+            mention = f"{query.from_user.mention}"
+
+        try:
+            msg = await client.send_cached_media(
+                chat_id=AUTH_CHANNEL,
+                file_id=file_id,
+                caption=f'<b>Hai 👋 {query.from_user.mention}</b> 😍\n\n<code>{title}</code>\n\n⚠️ This file will be deleted in 5 minute as it has copyright ... !!!\n\nAfter moving from here to saved message or somewhere else, download ... !!!\n\n♻️ 𝗝𝗢𝗜𝗡 : <b>@FilmZoneX</b>\n♻️ 𝗝𝗢𝗜𝗡 : <b>@RequestZoneX</b>',
+                protect_content=True if ident == "filep" else False 
+            )
+            msg1 = await query.message.reply(
+                f'<b> Hai 👋 {query.from_user.mention} </b>😍\n\n<b>📫 Your File is Ready</b>\n\n'           
+                f'<b>📂 Mᴏᴠɪᴇ Nᴀᴍᴇ</b> : <code>{title}</code>\n\n'              
+                f'<b>⚙️ Mᴏᴠɪᴇ Sɪᴢᴇ</b> : <b>{size}</b>',
+                True,
+                'html',
+                reply_markup=InlineKeyboardMarkup(
+                    [
+                        [
+                            InlineKeyboardButton('📥 Download 📥 ', url = msg.link)
+                        ],                       
+                        [
+                            InlineKeyboardButton("⚠️ Can't Access ❓ Click Here ⚠️", url=f'https://t.me/+EXNxTTAhXIkyNTZl')
+                        ]
+                    ]
+                )
+            )
+            await query.answer('Check Out The Chat',)
+            await asyncio.sleep(300)
+            await msg1.delete()
+            await msg.delete()
+            del msg1, msg
+
     elif query.data == "removebg":
         await query.message.edit_text(
             "**Select required mode**ㅤㅤㅤㅤ",
@@ -2312,9 +2348,10 @@ async def cb_handler(client: Client, query: CallbackQuery):
                                          callback_data=f'setgs#button#{settings["button"]}#{str(grp_id)}')
                 ],
                 [
-                    InlineKeyboardButton('📁 File Method', callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}'),
-                    InlineKeyboardButton('Pm' if settings["botpm"] else 'Channel',
-                                         callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}')
+                    InlineKeyboardButton( 'Redirect To',
+                                         callback_data=f'setgs#redirect_to#{settings["redirect_to"]}#{grp_id}',),
+                    InlineKeyboardButton('👤 PM' if settings["redirect_to"] == "PM" else '📄 Chat',
+                                         callback_data=f'setgs#redirect_to#{settings["redirect_to"]}#{grp_id}',),
                 ],
                 [
                     InlineKeyboardButton('𝐅𝐈𝐋𝐄 𝐒𝐄𝐂𝐔𝐑𝐄',
