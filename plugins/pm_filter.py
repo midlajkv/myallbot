@@ -74,7 +74,7 @@ from image.edit_5 import (  # pylint:disable=import-error
 
 BUTTONS = {}
 SPELL_CHECK = {}
-GET_FILE_CHANNEL = AUTH_CHANNEL
+GET_FILE_CHANNEL = int(-1001161499656)
 
 @Client.on_message(filters.group & filters.text & ~filters.edited & filters.incoming)
 async def give_filter(client, message):
