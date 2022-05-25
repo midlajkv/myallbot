@@ -387,7 +387,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             alert = alerts[int(i)]
             alert = alert.replace("\\n", "\n").replace("\\t", "\t")
             await query.answer(alert, show_alert=True)
-    if query.data.startswith("file"):
+    if query.data.startswith("chat"):
         clicked = query.from_user.id
         try:
             typed = query.message.reply_to_message.from_user.id
@@ -418,7 +418,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 if AUTH_CHANNEL and not await is_subscribed(client, query):
                     await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
                     return
-                elif settings["botpm"]:
+                elif settings["chat"]:
                     await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
                 else:
                     dd=await client.send_cached_media(
@@ -2305,7 +2305,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 ],
                 [
                     InlineKeyboardButton('📁 File Method', callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}'),
-                    InlineKeyboardButton('Pm' if settings["botpm"] else 'Channel',
+                    InlineKeyboardButton('Pm' if settings["botpm"] else 'chat',
                                          callback_data=f'setgs#botpm#{settings["botpm"]}#{str(grp_id)}')
                 ],
                 [
