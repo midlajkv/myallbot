@@ -387,65 +387,56 @@ async def cb_handler(client: Client, query: CallbackQuery):
             alert = alerts[int(i)]
             alert = alert.replace("\\n", "\n").replace("\\t", "\t")
             await query.answer(alert, show_alert=True)
-    if query.data.startswith("chat"):
-        clicked = query.from_user.id
-        try:
-            typed = query.message.reply_to_message.from_user.id
-        except:
-            typed = query.from_user.id
-            pass
-        if int(clicked) == typed:
-            settings = await get_settings(query.message.chat.id)
-            ident, file_id = query.data.split("#")
-            files_ = await get_file_details(file_id)
 
-            if not files_:
-                return await query.answer('No such file exist.')
-            files = files_[0]
-            title = files.file_name
-            size=get_size(files.file_size)
-            f_caption=files.caption
-            if CUSTOM_FILE_CAPTION:
-                try:
-                    f_caption=CUSTOM_FILE_CAPTION.format(m = query.from_user.mention, file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption)
-                except Exception as e:
-                    logger.exception(e)
-                    f_caption=f_caption
-                    if f_caption is None:
-                        f_caption = f"{files.file_name}"
-            
+    if query.data.startswith("file"):
+        FILE_CHANNEL_ID = int(-1001161499656)
+        ident, file_id = query.data.split("#")
+        files_ = await get_file_details(file_id)
+        if not files_:
+            return await query.answer('No such file exist.')
+        files = files_[0]
+        title = files.file_name
+        size=get_size(files.file_size)
+        f_caption=files.caption
+        if CUSTOM_FILE_CAPTION:
             try:
-                if AUTH_CHANNEL and not await is_subscribed(client, query):
-                    await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
-                    return
-                elif settings["chat"]:
-                    await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
-                else:
-                    dd=await client.send_cached_media(
-                        chat_id=GET_FILE_CHANNEL,
-                        file_id=file_id,
-                        caption=f_caption
-                    )
-                    message = query.message.reply_to_message
-                    buttons = [[
-                        InlineKeyboardButton("ＤＯＷＮＬＯＡＤ", url=f"{dd.link}")
-                        ],[
-                        InlineKeyboardButton("𝖢𝗅𝗈𝗌𝖾 🗑️", callback_data='closefilemsg')
-                    ]]
-                    reply_markup = InlineKeyboardMarkup(buttons)
-                    fff = await message.reply_text(text=script.ANYFILECAPTION_TXT.format(file_name= '' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption), reply_markup=reply_markup)
-                    await asyncio.sleep(35)
-                    await fff.delete()
-
-            except UserIsBlocked:
-                await query.answer('Unblock the bot mahn !',show_alert = True)
-            except PeerIdInvalid:
-                await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
+                f_caption=CUSTOM_FILE_CAPTION.format(file_name=title, file_size=size, file_caption=f_caption)
             except Exception as e:
-                await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
-                print(f"{e}")
-        else:
-            await query.answer(f"⚠️ 𝙃𝙚𝙮, {query.from_user.first_name}! 𝙏𝙝𝙖𝙩'𝙨 𝙉𝙤𝙩 𝙁𝙤𝙧 𝙔𝙤𝙪. 𝙋𝙡𝙚𝙖𝙨𝙚 𝙍𝙚𝙦𝙪𝙚𝙨𝙩 𝙔𝙤𝙪𝙧 𝙊𝙬𝙣", show_alert=True)
+                logger.exception(e)
+            f_caption=f_caption
+        if f_caption is None:
+            f_caption = f"{files.file_name}"
+            
+        try:
+            if AUTH_CHANNEL and not await is_subscribed(client, query):
+                await query.answer(url=f"https://t.me/{temp.U_NAME}?start={file_id}")
+                return
+            elif settings["botpm"]:
+                await query.answer(url=f"https://t.me/{temp.U_NAME}?start={file_id}")
+                return
+            else:
+                send_file = await client.send_cached_media(
+                    chat_id=FILE_CHANNEL_ID,
+                    file_id=file_id,
+                    caption=f_caption
+                    )
+                btn = [[
+                    InlineKeyboardButton("💥JOIN CHANNEL💥", url='https://t.me/justaupdatechannel')
+                ]]
+                reply_markup = InlineKeyboardMarkup(btn)
+                bb = await query.message.reply_text(
+                    text = f"Hi click the below link and download the movies🍿\n\nERROR? Click the join channel button and try again \n\n{send_file.link}",
+                    reply_markup = reply_markup
+                )
+                await asyncio.sleep(300)
+                await send_file.delete()
+                await bb.delete()
+        except UserIsBlocked:
+            await query.answer('Unblock the bot mahn !',show_alert = True)
+        except PeerIdInvalid:
+            await query.answer(url=f"https://t.me/{temp.U_NAME}?start={file_id}")
+        except Exception as e:
+            await query.answer(url=f"https://t.me/{temp.U_NAME}?start={file_id}")
 
     elif query.data.startswith("checksub"):
         if AUTH_CHANNEL and not await is_subscribed(client, query):
