@@ -441,11 +441,21 @@ async def settings(client, message):
             ],
             [
                 InlineKeyboardButton(
-                    '𝐁𝐎𝐓 𝐏𝐌',
+                    'Redirect To',
+                    callback_data=f'setgs#redirect_to#{settings["redirect_to"]}#{grp_id}',
+                ),
+                InlineKeyboardButton(
+                    '👤 PM' if settings["redirect_to"] == "PM" else '📄 Chat',
+                    callback_data=f'setgs#redirect_to#{settings["redirect_to"]}#{grp_id}',
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    'Bot PM',
                     callback_data=f'setgs#botpm#{settings["botpm"]}#{grp_id}',
                 ),
                 InlineKeyboardButton(
-                    '✅ 𝐘𝐄𝐒' if settings["botpm"] else '🗑️ 𝐍𝐎',
+                    '✅ Yes' if settings["botpm"] else '❌ No',
                     callback_data=f'setgs#botpm#{settings["botpm"]}#{grp_id}',
                 ),
             ],
