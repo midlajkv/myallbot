@@ -471,7 +471,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 chat_id=AUTH_CHANNEL,
                 file_id=file_id,
                 caption=f'<b>Hai 👋 {query.from_user.mention}</b> 😍\n\n<code>{title}</code>\n\n⚠️ This file will be deleted in 5 minute as it has copyright ... !!!\n\nAfter moving from here to saved message or somewhere else, download ... !!!\n\n♻️ 𝗝𝗢𝗜𝗡 : <b>@FilmZoneX</b>\n♻️ 𝗝𝗢𝗜𝗡 : <b>@RequestZoneX</b>',
-                protect_content=True if ident == "filep" else False 
+                protect_content=True if ident == "Chat" else False 
             )
             msg1 = await query.message.reply(
                 f'<b> Hai 👋 {query.from_user.mention} </b>😍\n\n<b>📫 Your File is Ready</b>\n\n'           
