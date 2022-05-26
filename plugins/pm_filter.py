@@ -2348,12 +2348,13 @@ async def cb_handler(client: Client, query: CallbackQuery):
             await query.message.edit("Your Active Connection Has Been Changed. Go To /settings.")
             return 
 
-        if status == "True":
+        if status == "True" or status == "Chat":
             await save_group_settings(grpid, set_type, False)
         else:
             await save_group_settings(grpid, set_type, True)
 
         settings = await get_settings(grpid)
+
 
         if settings is not None:
             buttons = [
